@@ -7,11 +7,28 @@ Guía para trabajar en este repositorio. Mantenla corta y específica del proyec
 Monolito **Django 6** (`config/`) gestionado con **UV**. Requiere **Python 3.12+**.
 
 Apps:
-- **`users`** — modelo de usuario personalizado (`User(AbstractUser)`).
-  `AUTH_USER_MODEL = 'users.User'` (definido desde el inicio del proyecto).
+- **`users`** — usuario personalizado **solo-email, sin username** (`User`, `USERNAME_FIELD =
+  'email'`, `UserManager` propio). `AUTH_USER_MODEL = 'users.User'`.
 - **`stories`** — app de ejemplo que demuestra los lineamientos del proyecto
   (CBV genéricas, `FilterView`, signals, HTMX, tests). Es un vehículo de demostración:
   puede ampliarse o reemplazarse por el dominio real.
+
+## Autenticación
+
+Sin contraseña, con **django-allauth** (*Login by Code*). **Login y registro unificados**:
+no hay página de registro aparte.
+- `/accounts/login/` → ingresar el email → llega un **código por correo** → confirmarlo en
+  `/accounts/login/code/confirm/`. **Si la cuenta no existe, se crea** (ver
+  `users.forms.BootstrapRequestLoginCodeForm.clean_email`).
+- `/accounts/signup/` redirige al login (no hay registro separado).
+- La sesión **siempre se recuerda** (`ACCOUNT_SESSION_REMEMBER = True`, sin checkbox).
+- Los superusuarios (`createsuperuser`, pide email + contraseña) entran a `/admin/` con
+  contraseña; los usuarios finales son passwordless.
+- Las vistas de **escritura** de historias (`create`/`update`/`delete`) exigen login
+  (`LoginRequiredMixin`); listado y detalle son públicos.
+- Formularios y botones de allauth reestilados con Bootstrap (`users/forms.py` vía
+  `ACCOUNT_FORMS`, y overrides en `templates/allauth/elements/` y `templates/account/`).
+- En desarrollo el correo usa el backend de **consola** (el código aparece en la terminal).
 
 ## Comandos
 
@@ -34,7 +51,9 @@ mano ni usar `pip`.
 Las variables se leen desde `.env` con **`django-environ`** en `config/settings.py`.
 Para empezar: copiar `.env.example` → `.env` y ajustar. `.env` está en `.gitignore`.
 
-Variables: `DATABASE_URL`, `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`.
+Variables: `DATABASE_URL`, `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, y las de correo
+(`EMAIL_BACKEND` y, para SMTP en producción, `EMAIL_HOST`/`EMAIL_PORT`/`EMAIL_HOST_USER`/
+`EMAIL_HOST_PASSWORD`/`EMAIL_USE_TLS`/`DEFAULT_FROM_EMAIL`).
 
 PostgreSQL se levanta con `docker-compose.yml` (servicio `db`, `postgres:16`); sus
 credenciales deben coincidir con el `DATABASE_URL` del `.env`.
@@ -56,11 +75,14 @@ credenciales deben coincidir con el `DATABASE_URL` del `.env`.
 ## Estructura
 
 ```
-config/            settings.py (django-environ, AUTH_USER_MODEL, middleware HTMX), urls.py
-users/             models.py (User), admin.py, tests/
+config/            settings.py (django-environ, allauth, AUTH_USER_MODEL, middleware), urls.py
+users/             models.py (User solo-email + UserManager), admin.py, tests/
 stories/           models.py, filters.py, signals.py, apps.py, views.py, urls.py, admin.py
                    templates/stories/ (+ partials/_story_table.html para HTMX), tests/
-templates/         base.html (Bootstrap + htmx por CDN)
+templates/         base.html (Bootstrap + htmx por CDN); allauth/layouts/base.html (override)
 docker-compose.yml servicio PostgreSQL para desarrollo
 .env / .env.example
 ```
+
+Las páginas de auth las aporta allauth; se reestilan extendiendo `base.html` vía el override
+`templates/allauth/layouts/base.html`.

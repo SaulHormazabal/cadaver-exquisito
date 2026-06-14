@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from stories.models import Story
+
+User = get_user_model()
 
 
 class StoryListViewTests(TestCase):
@@ -62,7 +65,26 @@ class StoryPaginationFilterTests(TestCase):
         )
 
 
+class StoryWriteRequiresLoginTests(TestCase):
+    def test_anonymous_create_redirects_to_login(self):
+        response = self.client.get(reverse('stories:create'))
+        login_url = reverse('account_login')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith(login_url))
+
+    def test_anonymous_update_and_delete_redirect_to_login(self):
+        story = Story.objects.create(title='Protegida', author='Ada')
+        for name in ('stories:update', 'stories:delete'):
+            response = self.client.get(reverse(name, args=[story.slug]))
+            self.assertEqual(response.status_code, 302)
+            self.assertIn(reverse('account_login'), response.url)
+
+
 class StoryCrudViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email='autor@example.com')
+        self.client.force_login(self.user)
+
     def test_create_view_persists_and_redirects(self):
         response = self.client.post(
             reverse('stories:create'),
