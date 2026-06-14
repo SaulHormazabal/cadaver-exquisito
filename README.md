@@ -25,10 +25,12 @@ Django.
 
 ## Autenticación
 
-Sin contraseña, mediante **código enviado por correo** (django-allauth, *Login by Code*):
+Sin contraseña, mediante **código enviado por correo** (django-allauth, *Login by Code*).
+**Login y registro unificados** — no hay página de registro aparte:
 
-- **Registro** (`/accounts/signup/`): ingresar el email → llega un código → confirmarlo.
-- **Login** (`/accounts/login/`): ingresar el email → llega un código → confirmarlo.
+- En `/accounts/login/` ingresas tu email → llega un código → lo confirmas.
+  **Si la cuenta no existe, se crea automáticamente.**
+- La sesión siempre se recuerda (no hay opción "recordarme").
 - Crear/editar/eliminar historias requiere haber iniciado sesión; el listado y el detalle
   son públicos.
 - En **desarrollo** el correo se imprime en la consola (el código aparece en la terminal);

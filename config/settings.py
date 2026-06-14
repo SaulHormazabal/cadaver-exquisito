@@ -87,11 +87,11 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+# Recordar siempre la sesión (sin checkbox "remember me").
+ACCOUNT_SESSION_REMEMBER = True
 
 # Formularios con estilos Bootstrap (ver users/forms.py).
 ACCOUNT_FORMS = {
-    'login': 'users.forms.BootstrapLoginForm',
-    'signup': 'users.forms.BootstrapSignupForm',
     'request_login_code': 'users.forms.BootstrapRequestLoginCodeForm',
     'confirm_login_code': 'users.forms.BootstrapConfirmLoginCodeForm',
     'confirm_email_verification_code':
@@ -159,7 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'UTC'
 

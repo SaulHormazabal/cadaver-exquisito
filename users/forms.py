@@ -1,11 +1,11 @@
 from allauth.account.forms import (
     ConfirmEmailVerificationCodeForm,
     ConfirmLoginCodeForm,
-    LoginForm,
     RequestLoginCodeForm,
-    SignupForm,
 )
+from allauth.account.models import EmailAddress
 from django import forms
+from django.contrib.auth import get_user_model
 
 
 class BootstrapFormMixin:
@@ -29,16 +29,19 @@ class BootstrapFormMixin:
             widget.attrs['class'] = f'{existing} {css_class}'.strip()
 
 
-class BootstrapLoginForm(BootstrapFormMixin, LoginForm):
-    pass
-
-
-class BootstrapSignupForm(BootstrapFormMixin, SignupForm):
-    pass
-
-
 class BootstrapRequestLoginCodeForm(BootstrapFormMixin, RequestLoginCodeForm):
-    pass
+    """Login unificado: si el email no tiene cuenta, se crea al pedir el código."""
+
+    def clean_email(self):
+        email = super().clean_email()
+        if email and self._user is None:
+            User = get_user_model()
+            user = User.objects.create_user(email=email)
+            EmailAddress.objects.create(
+                user=user, email=email, primary=True, verified=False
+            )
+            self._user = user
+        return email
 
 
 class BootstrapConfirmLoginCodeForm(BootstrapFormMixin, ConfirmLoginCodeForm):

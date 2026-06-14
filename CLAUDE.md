@@ -15,15 +15,19 @@ Apps:
 
 ## Autenticación
 
-Sin contraseña, con **django-allauth** (*Login by Code*). Tanto el alta como el inicio de
-sesión se completan ingresando un **código que llega por correo**:
-- Registro: `/accounts/signup/` (solo email) → código de verificación → confirmar en
-  `/accounts/confirm-email/`.
-- Login: `/accounts/login/` → "código de acceso" → confirmar en `/accounts/login/code/confirm/`.
+Sin contraseña, con **django-allauth** (*Login by Code*). **Login y registro unificados**:
+no hay página de registro aparte.
+- `/accounts/login/` → ingresar el email → llega un **código por correo** → confirmarlo en
+  `/accounts/login/code/confirm/`. **Si la cuenta no existe, se crea** (ver
+  `users.forms.BootstrapRequestLoginCodeForm.clean_email`).
+- `/accounts/signup/` redirige al login (no hay registro separado).
+- La sesión **siempre se recuerda** (`ACCOUNT_SESSION_REMEMBER = True`, sin checkbox).
 - Los superusuarios (`createsuperuser`, pide email + contraseña) entran a `/admin/` con
   contraseña; los usuarios finales son passwordless.
 - Las vistas de **escritura** de historias (`create`/`update`/`delete`) exigen login
   (`LoginRequiredMixin`); listado y detalle son públicos.
+- Formularios y botones de allauth reestilados con Bootstrap (`users/forms.py` vía
+  `ACCOUNT_FORMS`, y overrides en `templates/allauth/elements/` y `templates/account/`).
 - En desarrollo el correo usa el backend de **consola** (el código aparece en la terminal).
 
 ## Comandos
