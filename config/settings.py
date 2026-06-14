@@ -88,6 +88,16 @@ ACCOUNT_LOGIN_BY_CODE_ENABLED = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 
+# Formularios con estilos Bootstrap (ver users/forms.py).
+ACCOUNT_FORMS = {
+    'login': 'users.forms.BootstrapLoginForm',
+    'signup': 'users.forms.BootstrapSignupForm',
+    'request_login_code': 'users.forms.BootstrapRequestLoginCodeForm',
+    'confirm_login_code': 'users.forms.BootstrapConfirmLoginCodeForm',
+    'confirm_email_verification_code':
+        'users.forms.BootstrapConfirmEmailVerificationCodeForm',
+}
+
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'stories:list'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'stories:list'
