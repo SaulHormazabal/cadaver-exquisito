@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Historias · Cadáver Exquisito{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Historias</h1>
+
+<form
+    hx-get="{% url 'stories:list' %}"
+    hx-target="#story-table"
+    hx-select="#story-table"
+    hx-swap="outerHTML"
+    hx-trigger="keyup changed delay:300ms from:input, change"
+    hx-push-url="true"
+    class="row g-2 mb-4">
+    <div class="col-sm-4">
+        {{ filter.form.title.label_tag }}
+        {{ filter.form.title }}
+    </div>
+    <div class="col-sm-4">
+        {{ filter.form.author.label_tag }}
+        {{ filter.form.author }}
+    </div>
+    <div class="col-sm-4">
+        {{ filter.form.status.label_tag }}
+        {{ filter.form.status }}
+    </div>
+</form>
+
+{% include "stories/partials/_story_table.html" %}
+{% endblock %}

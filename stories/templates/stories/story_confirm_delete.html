@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar historia · Cadáver Exquisito{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Eliminar historia</h1>
+
+<p>¿Seguro que quieres eliminar «{{ object.title }}»?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+    <a class="btn btn-link" href="{% url 'stories:list' %}">Cancelar</a>
+</form>
+{% endblock %}
