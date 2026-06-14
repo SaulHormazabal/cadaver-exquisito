@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Nueva{% endif %} historia · Cadáver Exquisito{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">{% if form.instance.pk %}Editar historia{% else %}Nueva historia{% endif %}</h1>
+
+<form method="post" class="mb-3" style="max-width: 640px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" href="{% url 'stories:list' %}">Cancelar</a>
+</form>
+{% endblock %}
