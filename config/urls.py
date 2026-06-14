@@ -20,6 +20,7 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.account.urls')),
     path('stories/', include('stories.urls')),
     path('', RedirectView.as_view(pattern_name='stories:list', permanent=False)),
 ]

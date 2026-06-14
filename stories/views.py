@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django_filters.views import FilterView
@@ -26,16 +27,16 @@ class StoryDetailView(DetailView):
     context_object_name = 'story'
 
 
-class StoryCreateView(CreateView):
+class StoryCreateView(LoginRequiredMixin, CreateView):
     model = Story
     form_class = StoryForm
 
 
-class StoryUpdateView(UpdateView):
+class StoryUpdateView(LoginRequiredMixin, UpdateView):
     model = Story
     form_class = StoryForm
 
 
-class StoryDeleteView(DeleteView):
+class StoryDeleteView(LoginRequiredMixin, DeleteView):
     model = Story
     success_url = reverse_lazy('stories:list')
