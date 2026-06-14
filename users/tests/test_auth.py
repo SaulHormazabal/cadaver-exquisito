@@ -32,7 +32,7 @@ class LoginCreatesAccountTests(TestCase):
         confirm = self.client.post(
             reverse('account_confirm_login_code'), {'code': code}
         )
-        self.assertRedirects(confirm, reverse('stories:list'))
+        self.assertRedirects(confirm, reverse('corpse:list'))
         self.assertEqual(self.client.session['_auth_user_id'], str(user.pk))
         # El login por código deja el email verificado.
         self.assertTrue(EmailAddress.objects.get(user=user).verified)
@@ -62,7 +62,7 @@ class LoginExistingUserTests(TestCase):
         confirm = self.client.post(
             reverse('account_confirm_login_code'), {'code': code}
         )
-        self.assertRedirects(confirm, reverse('stories:list'))
+        self.assertRedirects(confirm, reverse('corpse:list'))
         self.assertEqual(self.client.session['_auth_user_id'], str(self.user.pk))
         self.assertEqual(User.objects.filter(email='ada@example.com').count(), 1)
 

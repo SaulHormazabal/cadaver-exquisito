@@ -1,8 +1,8 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
 
-from .models import Story
+from .models import Fragment, Story
 
 
 @receiver(pre_save, sender=Story)
@@ -18,3 +18,15 @@ def set_story_slug(sender, instance, **kwargs):
         slug = f'{base}-{counter}'
         counter += 1
     instance.slug = slug
+
+
+@receiver(post_save, sender=Fragment)
+def close_story_when_full(sender, instance, created, **kwargs):
+    """Cierra la historia automáticamente al alcanzar el máximo de fragmentos."""
+    if not created:
+        return
+
+    story = instance.story
+    if story.is_open and story.is_full():
+        story.status = Story.Status.CLOSED
+        story.save(update_fields=['status'])

@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'allauth.account',
     # Apps locales
     'users',
-    'stories',
+    'corpse',
 ]
 
 MIDDLEWARE = [
@@ -99,8 +99,8 @@ ACCOUNT_FORMS = {
 }
 
 LOGIN_URL = 'account_login'
-LOGIN_REDIRECT_URL = 'stories:list'
-ACCOUNT_LOGOUT_REDIRECT_URL = 'stories:list'
+LOGIN_REDIRECT_URL = 'corpse:list'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'corpse:list'
 
 # Mapear los niveles de mensajes a clases de alerta de Bootstrap 5
 # (Django usa 'error'/'debug', que no son clases válidas de Bootstrap).

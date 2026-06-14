@@ -3,23 +3,26 @@
         <thead>
             <tr>
                 <th>Título</th>
-                <th>Autor</th>
+                <th>Creador</th>
                 <th>Estado</th>
+                <th>Progreso</th>
                 <th>Creada</th>
-                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for story in stories %}
             <tr>
                 <td><a href="{{ story.get_absolute_url }}">{{ story.title }}</a></td>
-                <td>{{ story.author }}</td>
-                <td>{{ story.get_status_display }}</td>
-                <td>{{ story.created_at|date:"Y-m-d H:i" }}</td>
-                <td class="text-end">
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'stories:update' story.slug %}">Editar</a>
-                    <a class="btn btn-sm btn-outline-danger" href="{% url 'stories:delete' story.slug %}">Eliminar</a>
+                <td>{{ story.creator }}</td>
+                <td>
+                    {% if story.status == 'open' %}
+                    <span class="badge bg-success">{{ story.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ story.get_status_display }}</span>
+                    {% endif %}
                 </td>
+                <td>{{ story.fragment_count }} / {{ story.max_fragments }}</td>
+                <td>{{ story.created_at|date:"Y-m-d H:i" }}</td>
             </tr>
             {% empty %}
             <tr>

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Contribuir · {{ story.title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px;">
+    <h1 class="mb-2">Continúa «{{ story.title }}»</h1>
+    <p class="text-muted">Fragmento {{ story.fragment_count|add:1 }} de {{ story.max_fragments }}</p>
+
+    <div class="card mb-4">
+        <div class="card-header">Lo que ves para continuar</div>
+        <div class="card-body">
+            {% if snippet %}
+            <p class="mb-0 fst-italic">…{{ snippet }}</p>
+            {% else %}
+            <p class="mb-0 text-muted">Todavía no hay fragmentos.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.text.label_tag }}
+            {{ form.text }}
+            {% for error in form.text.errors %}
+            <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Añadir fragmento</button>
+        <a class="btn btn-link" href="{{ story.get_absolute_url }}">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

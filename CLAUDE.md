@@ -9,9 +9,11 @@ Monolito **Django 6** (`config/`) gestionado con **UV**. Requiere **Python 3.12+
 Apps:
 - **`users`** — usuario personalizado **solo-email, sin username** (`User`, `USERNAME_FIELD =
   'email'`, `UserManager` propio). `AUTH_USER_MODEL = 'users.User'`.
-- **`stories`** — app de ejemplo que demuestra los lineamientos del proyecto
-  (CBV genéricas, `FilterView`, signals, HTMX, tests). Es un vehículo de demostración:
-  puede ampliarse o reemplazarse por el dominio real.
+- **`corpse`** — el juego del **cadáver exquisito**: historia colaborativa por turnos.
+  `Story` (la pieza, con `visibility` TAIL/FULL, `tail_words`, `max_fragments`, `status`
+  OPEN/CLOSED) y `Fragment` (cada contribución, con `order` y
+  `UniqueConstraint(story, order)`). Sigue los lineamientos del proyecto (CBV genéricas,
+  `FilterView`, signals, HTMX, tests). Montada en la raíz (`config/urls.py`).
 
 ## Autenticación
 
@@ -24,11 +26,32 @@ no hay página de registro aparte.
 - La sesión **siempre se recuerda** (`ACCOUNT_SESSION_REMEMBER = True`, sin checkbox).
 - Los superusuarios (`createsuperuser`, pide email + contraseña) entran a `/admin/` con
   contraseña; los usuarios finales son passwordless.
-- Las vistas de **escritura** de historias (`create`/`update`/`delete`) exigen login
+- Las vistas de **escritura** de historias (`create`/`contribute`/`close`) exigen login
   (`LoginRequiredMixin`); listado y detalle son públicos.
 - Formularios y botones de allauth reestilados con Bootstrap (`users/forms.py` vía
   `ACCOUNT_FORMS`, y overrides en `templates/allauth/elements/` y `templates/account/`).
 - En desarrollo el correo usa el backend de **consola** (el código aparece en la terminal).
+
+## Dinámica del juego (app `corpse`)
+
+Historia colaborativa por turnos, **asíncrona** (sin tiempo real):
+
+- **Inicio:** crear una `Story` incluye su **primer `Fragment`** (orden 1) escrito por el
+  creador, junto con los ajustes: `visibility` (`TAIL` = solo el final del fragmento
+  anterior / `FULL` = el último fragmento completo), `tail_words` (solo aplica en `TAIL`) y
+  `max_fragments` (`>= 2`).
+- **Visibilidad / ocultamiento (seguridad):** mientras la historia está `OPEN`, el servidor
+  **nunca** envía los fragmentos ocultos. El detalle muestra solo `Story.visible_snippet()`
+  del último fragmento. El texto completo (`Story.assembled_text()` / fragmentos atribuidos)
+  se revela **solo** cuando `CLOSED`.
+- **Turno (sin dos seguidos):** un usuario autenticado puede aportar el siguiente fragmento
+  si la historia está `OPEN`, no está llena, y **no es** el autor del último fragmento
+  (validado en `FragmentCreateView`).
+- **Concurrencia:** `order = fragment_count + 1` dentro de una transacción; la
+  `UniqueConstraint(story, order)` corta la carrera (al saltar `IntegrityError` se
+  re-renderiza con el nuevo snippet).
+- **Cierre/revelado:** un signal `post_save` en `Fragment` cierra la historia al alcanzar
+  `max_fragments`; el creador también puede cerrarla antes (`StoryCloseView`, solo POST).
 
 ## Comandos
 
@@ -62,12 +85,12 @@ credenciales deben coincidir con el `DATABASE_URL` del `.env`.
 
 - **Vistas:** genéricas basadas en clases (`ListView`, `DetailView`, `CreateView`, etc.).
 - **Listados con filtro:** usar `FilterView` de `django-filter`. Los `FilterSet` viven en
-  un `filters.py` por app (ej. `stories/filters.py`).
+  un `filters.py` por app (ej. `corpse/filters.py`).
 - **Signals:** definirlos en `signals.py`, conectarlos con el decorador `@receiver`, e
-  importarlos desde `AppConfig.ready()` (ver `stories/apps.py` y `stories/signals.py`).
+  importarlos desde `AppConfig.ready()` (ver `corpse/apps.py` y `corpse/signals.py`).
 - **Frontend:** Django templates. Lo dinámico se implementa con **HTMX** (htmx por CDN en
   `templates/base.html`; `django_htmx` aporta `request.htmx`). Patrón: la vista devuelve un
-  partial en peticiones HTMX — ver `StoryListView.get_template_names` en `stories/views.py`.
+  partial en peticiones HTMX — ver `StoryListView.get_template_names` en `corpse/views.py`.
 - **Estilos:** Bootstrap 5 por CDN.
 - **Tests:** suite de Django (`TestCase`), en el paquete `tests/` de cada app
   (`test_models.py`, `test_filters.py`, `test_views.py`).
@@ -77,8 +100,9 @@ credenciales deben coincidir con el `DATABASE_URL` del `.env`.
 ```
 config/            settings.py (django-environ, allauth, AUTH_USER_MODEL, middleware), urls.py
 users/             models.py (User solo-email + UserManager), admin.py, tests/
-stories/           models.py, filters.py, signals.py, apps.py, views.py, urls.py, admin.py
-                   templates/stories/ (+ partials/_story_table.html para HTMX), tests/
+corpse/            models.py (Story + Fragment), forms.py, filters.py, signals.py, apps.py,
+                   views.py, urls.py, admin.py
+                   templates/corpse/ (+ partials/_story_table.html para HTMX), tests/
 templates/         base.html (Bootstrap + htmx por CDN); allauth/layouts/base.html (override)
 docker-compose.yml servicio PostgreSQL para desarrollo
 .env / .env.example
