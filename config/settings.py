@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 
 import environ
+from django.contrib.messages import constants as message_constants
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,6 +91,13 @@ ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'stories:list'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'stories:list'
+
+# Mapear los niveles de mensajes a clases de alerta de Bootstrap 5
+# (Django usa 'error'/'debug', que no son clases válidas de Bootstrap).
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+    message_constants.DEBUG: 'secondary',
+}
 
 ROOT_URLCONF = 'config.urls'
 
