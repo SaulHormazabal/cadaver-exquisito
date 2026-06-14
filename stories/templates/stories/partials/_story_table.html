@@ -36,6 +36,7 @@
             <li class="page-item">
                 <a class="page-link"
                    hx-get="?page={{ page_obj.previous_page_number }}"
+                   hx-include="#story-filter"
                    hx-target="#story-table"
                    hx-select="#story-table"
                    hx-swap="outerHTML"
@@ -49,6 +50,7 @@
             <li class="page-item">
                 <a class="page-link"
                    hx-get="?page={{ page_obj.next_page_number }}"
+                   hx-include="#story-filter"
                    hx-target="#story-table"
                    hx-select="#story-table"
                    hx-swap="outerHTML"

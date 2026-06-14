@@ -6,6 +6,7 @@
 <h1 class="mb-4">Historias</h1>
 
 <form
+    id="story-filter"
     hx-get="{% url 'stories:list' %}"
     hx-target="#story-table"
     hx-select="#story-table"

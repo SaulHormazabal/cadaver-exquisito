@@ -3,6 +3,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django_filters.views import FilterView
 
 from .filters import StoryFilter
+from .forms import StoryForm
 from .models import Story
 
 
@@ -27,12 +28,12 @@ class StoryDetailView(DetailView):
 
 class StoryCreateView(CreateView):
     model = Story
-    fields = ['title', 'author', 'status', 'body']
+    form_class = StoryForm
 
 
 class StoryUpdateView(UpdateView):
     model = Story
-    fields = ['title', 'author', 'status', 'body']
+    form_class = StoryForm
 
 
 class StoryDeleteView(DeleteView):

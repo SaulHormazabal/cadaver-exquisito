@@ -36,6 +36,32 @@ class StoryListViewTests(TestCase):
         self.assertNotContains(response, '<nav class="navbar')
 
 
+class StoryPaginationFilterTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        for i in range(15):
+            Story.objects.create(
+                title=f'Publicada {i}', author='Ada', status=Story.Status.PUBLISHED
+            )
+        for i in range(3):
+            Story.objects.create(
+                title=f'Borrador {i}', author='Ada', status=Story.Status.DRAFT
+            )
+
+    def test_pagination_preserves_active_filter(self):
+        # Página 2 de un filtro: 15 publicadas, paginate_by=10 -> 5 en la pág. 2,
+        # y ninguna de las 3 borradores debe colarse.
+        response = self.client.get(
+            reverse('stories:list'), {'status': Story.Status.PUBLISHED, 'page': 2}
+        )
+        self.assertEqual(response.status_code, 200)
+        object_list = response.context['object_list']
+        self.assertEqual(len(object_list), 5)
+        self.assertTrue(
+            all(s.status == Story.Status.PUBLISHED for s in object_list)
+        )
+
+
 class StoryCrudViewTests(TestCase):
     def test_create_view_persists_and_redirects(self):
         response = self.client.post(
