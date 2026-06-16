@@ -28,7 +28,7 @@ class StoryModelTests(TestCase):
 
     def test_get_absolute_url(self):
         story = self._story()
-        self.assertEqual(story.get_absolute_url(), f'/{story.slug}/')
+        self.assertEqual(story.get_absolute_url(), f'/historias/{story.slug}/')
 
     def test_is_full(self):
         story = self._story(max_fragments=2)

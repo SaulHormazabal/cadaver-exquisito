@@ -6,7 +6,7 @@ app_name = 'corpse'
 
 urlpatterns = [
     path('', views.StoryListView.as_view(), name='list'),
-    path('new/', views.StoryCreateView.as_view(), name='create'),
+    path('crear/', views.StoryCreateView.as_view(), name='create'),
     path('<slug:slug>/', views.StoryDetailView.as_view(), name='detail'),
     path('<slug:slug>/contribute/', views.FragmentCreateView.as_view(), name='contribute'),
     path('<slug:slug>/close/', views.StoryCloseView.as_view(), name='close'),

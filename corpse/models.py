@@ -73,13 +73,15 @@ class Story(models.Model):
     def last_fragment(self):
         return self.fragments.last()
 
-    def visible_snippet(self):
+    def visible_snippet(self, last=None):
         """Trozo permitido del último fragmento, según la visibilidad.
 
         Es lo único del cuerpo que se muestra mientras la historia sigue abierta.
         Devuelve cadena vacía si todavía no hay fragmentos.
+        Acepta `last` precalculado para evitar un query duplicado.
         """
-        last = self.last_fragment()
+        if last is None:
+            last = self.last_fragment()
         if last is None:
             return ''
         if self.visibility == self.Visibility.FULL:

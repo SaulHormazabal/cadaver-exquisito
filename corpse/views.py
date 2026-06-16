@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, DetailView, View
 from django_filters.views import FilterView
@@ -17,8 +18,17 @@ class StoryListView(FilterView):
     template_name = 'corpse/story_list.html'
     context_object_name = 'stories'
 
+    def get_queryset(self):
+        # select_related evita N queries para story.creator; la anotación
+        # fragment_count evita N COUNT queries por fila en la plantilla.
+        return (
+            super().get_queryset()
+            .select_related('creator')
+            .annotate(fragment_count=Count('fragments'))
+            .order_by('-created_at')
+        )
+
     def get_template_names(self):
-        # En peticiones HTMX devolvemos solo el fragmento de la tabla.
         if self.request.htmx:
             return ['corpse/partials/_story_table.html']
         return [self.template_name]
@@ -34,11 +44,13 @@ class StoryDetailView(DetailView):
         user = self.request.user
         # Mientras está abierta, solo se expone el trozo permitido del último
         # fragmento. El cuerpo oculto nunca se envía al template.
-        context['snippet'] = story.visible_snippet()
         last = story.last_fragment()
+        count = story.fragment_count()
+        context['snippet'] = story.visible_snippet(last=last)
+        context['fragment_count'] = count
         context['can_contribute'] = (
             story.is_open
-            and not story.is_full()
+            and count < story.max_fragments
             and user.is_authenticated
             and (last is None or last.author_id != user.id)
         )
@@ -74,6 +86,10 @@ class FragmentCreateView(LoginRequiredMixin, CreateView):
     template_name = 'corpse/fragment_form.html'
 
     def dispatch(self, request, *args, **kwargs):
+        # Verificar autenticación antes del lookup para que usuarios anónimos
+        # reciban redirect a login en vez de 404 por un slug inexistente.
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         self.story = get_object_or_404(Story, slug=kwargs['slug'])
         return super().dispatch(request, *args, **kwargs)
 
@@ -110,6 +126,7 @@ class FragmentCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['story'] = self.story
         context['snippet'] = self.story.visible_snippet()
+        context['fragment_count'] = self.story.fragment_count()
         return context
 
     def form_valid(self, form):

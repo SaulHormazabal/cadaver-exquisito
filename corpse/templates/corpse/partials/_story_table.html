@@ -15,7 +15,7 @@
                 <td><a href="{{ story.get_absolute_url }}">{{ story.title }}</a></td>
                 <td>{{ story.creator }}</td>
                 <td>
-                    {% if story.status == 'open' %}
+                    {% if story.is_open %}
                     <span class="badge bg-success">{{ story.get_status_display }}</span>
                     {% else %}
                     <span class="badge bg-secondary">{{ story.get_status_display }}</span>

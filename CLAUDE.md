@@ -13,7 +13,8 @@ Apps:
   `Story` (la pieza, con `visibility` TAIL/FULL, `tail_words`, `max_fragments`, `status`
   OPEN/CLOSED) y `Fragment` (cada contribución, con `order` y
   `UniqueConstraint(story, order)`). Sigue los lineamientos del proyecto (CBV genéricas,
-  `FilterView`, signals, HTMX, tests). Montada en la raíz (`config/urls.py`).
+  `FilterView`, signals, HTMX, tests). Montada en `/historias/` (`config/urls.py`); la
+  raíz `/` redirige al listado.
 
 ## Autenticación
 

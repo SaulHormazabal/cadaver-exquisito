@@ -4,11 +4,19 @@ from .models import Fragment, Story
 
 
 class FragmentInline(admin.TabularInline):
+    """Fragmentos de solo lectura: el orden secuencial lo gestiona el juego."""
+
     model = Fragment
     extra = 0
-    readonly_fields = ('created_at',)
+    readonly_fields = ('order', 'author', 'text', 'created_at')
     fields = ('order', 'author', 'text', 'created_at')
     ordering = ('order',)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Story)
