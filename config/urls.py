@@ -31,6 +31,6 @@ urlpatterns = [
         name='account_signup',
     ),
     path('accounts/', include('allauth.account.urls')),
-    path('stories/', include('stories.urls')),
-    path('', RedirectView.as_view(pattern_name='stories:list', permanent=False)),
+    path('historias/', include('corpse.urls')),
+    path('', RedirectView.as_view(pattern_name='corpse:list', permanent=False)),
 ]

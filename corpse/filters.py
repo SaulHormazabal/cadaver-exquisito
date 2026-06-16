@@ -10,11 +10,6 @@ class StoryFilter(django_filters.FilterSet):
         label='Título',
         widget=forms.TextInput(attrs={'class': 'form-control'}),
     )
-    author = django_filters.CharFilter(
-        lookup_expr='icontains',
-        label='Autor',
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
-    )
     status = django_filters.ChoiceFilter(
         choices=Story.Status.choices,
         label='Estado',
@@ -23,4 +18,4 @@ class StoryFilter(django_filters.FilterSet):
 
     class Meta:
         model = Story
-        fields = ['title', 'author', 'status']
+        fields = ['title', 'status']

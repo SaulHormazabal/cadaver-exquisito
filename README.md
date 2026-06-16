@@ -1,10 +1,11 @@
 # cadaver-exquisito
 
-Monolito **Django 6** que sirve de base para el proyecto. Incluye una app de ejemplo
-(`stories`) que demuestra las convenciones técnicas del repositorio: vistas genéricas
-basadas en clases, filtrado con `django-filter` (`FilterView` + `FilterSet`), signals
-conectados con decoradores, frontend con Django templates + HTMX y suite de tests de
-Django.
+Monolito **Django 6** que implementa el juego del **cadáver exquisito**: una historia
+colaborativa por turnos donde cada autor ve solo una parte de lo anterior y, al cerrarse,
+se revela el texto completo. Sigue las convenciones técnicas del repositorio: vistas
+genéricas basadas en clases, filtrado con `django-filter` (`FilterView` + `FilterSet`),
+signals conectados con decoradores, frontend con Django templates + HTMX y suite de tests
+de Django.
 
 ## Stack
 
@@ -20,8 +21,10 @@ Django.
 
 - **`users`** — usuario personalizado **solo-email, sin username** (`USERNAME_FIELD = 'email'`),
   con `AUTH_USER_MODEL = 'users.User'`.
-- **`stories`** — app de ejemplo que ejercita los lineamientos del proyecto. Es un vehículo
-  de demostración; puede ampliarse o reemplazarse por el dominio real.
+- **`corpse`** — el juego del cadáver exquisito: historias colaborativas (`Story`) formadas
+  por fragmentos por turnos (`Fragment`). Cada historia define su visibilidad (solo el final
+  del fragmento anterior, o el último fragmento completo) y un máximo de fragmentos; al
+  alcanzarlo —o al cerrarla su creador— se revela el texto completo.
 
 ## Autenticación
 
@@ -31,8 +34,8 @@ Sin contraseña, mediante **código enviado por correo** (django-allauth, *Login
 - En `/accounts/login/` ingresas tu email → llega un código → lo confirmas.
   **Si la cuenta no existe, se crea automáticamente.**
 - La sesión siempre se recuerda (no hay opción "recordarme").
-- Crear/editar/eliminar historias requiere haber iniciado sesión; el listado y el detalle
-  son públicos.
+- Crear historias, contribuir fragmentos y cerrar requieren haber iniciado sesión; el
+  listado y el detalle son públicos.
 - En **desarrollo** el correo se imprime en la consola (el código aparece en la terminal);
   en **producción** se configura SMTP por variables de entorno.
 - El panel `/admin/` usa email + contraseña (crea un superusuario con `createsuperuser`).
@@ -61,8 +64,8 @@ uv run python manage.py createsuperuser
 uv run python manage.py runserver
 ```
 
-La aplicación queda disponible en http://127.0.0.1:8000/ (la raíz redirige al listado de
-historias en `/stories/`). El panel de administración está en `/admin/`.
+La aplicación queda disponible en http://127.0.0.1:8000/ (la raíz es el listado de
+historias). El panel de administración está en `/admin/`.
 
 ## Tests
 
@@ -75,7 +78,7 @@ uv run python manage.py test
 ```
 config/            # proyecto Django: settings.py, urls.py, wsgi/asgi
 users/             # modelo de usuario personalizado
-stories/           # app de ejemplo: models, filters, signals, views, templates, tests
+corpse/            # juego del cadáver exquisito: models, filters, signals, views, templates, tests
 templates/         # base.html (Bootstrap + htmx por CDN)
 docker-compose.yml # servicio PostgreSQL para desarrollo
 .env.example       # plantilla de variables de entorno
